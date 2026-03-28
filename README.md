@@ -78,7 +78,7 @@ GeminiService
 
 ### 1. API Layer
 
-Express app được mount trong [`src/index.ts`](ai_chat_app/agentic_app_backend/src/index.ts).
+Express app được mount trong [`src/index.ts`](agentic_app_backend/src/index.ts).
 
 Các route chính:
 
@@ -99,16 +99,16 @@ Các route chính:
 
 Controllers chịu trách nhiệm nhận request HTTP và gọi service tương ứng:
 
-- [`src/controllers/agent.controller.ts`](ai_chat_app/agentic_app_backend/src/controllers/agent.controller.ts)
-- [`src/controllers/chat.controller.ts`](ai_chat_app/agentic_app_backend/src/controllers/chat.controller.ts)
-- [`src/controllers/weather.controller.ts`](ai_chat_app/agentic_app_backend/src/controllers/weather.controller.ts)
-- [`src/controllers/order.controller.ts`](ai_chat_app/agentic_app_backend/src/controllers/order.controller.ts)
-- [`src/controllers/customer.controller.ts`](ai_chat_app/agentic_app_backend/src/controllers/customer.controller.ts)
-- [`src/controllers/mcp-server.controller.ts`](ai_chat_app/agentic_app_backend/src/controllers/mcp-server.controller.ts)
+- [`src/controllers/agent.controller.ts`](agentic_app_backend/src/controllers/agent.controller.ts)
+- [`src/controllers/chat.controller.ts`](agentic_app_backend/src/controllers/chat.controller.ts)
+- [`src/controllers/weather.controller.ts`](agentic_app_backend/src/controllers/weather.controller.ts)
+- [`src/controllers/order.controller.ts`](agentic_app_backend/src/controllers/order.controller.ts)
+- [`src/controllers/customer.controller.ts`](agentic_app_backend/src/controllers/customer.controller.ts)
+- [`src/controllers/mcp-server.controller.ts`](agentic_app_backend/src/controllers/mcp-server.controller.ts)
 
 ### 3. Gemini Service
 
-[`src/services/gemini.service.ts`](ai_chat_app/agentic_app_backend/src/services/gemini.service.ts) là trung tâm điều phối model.
+[`src/services/gemini.service.ts`](agentic_app_backend/src/services/gemini.service.ts) là trung tâm điều phối model.
 
 Service này có 3 vai trò chính:
 
@@ -124,7 +124,7 @@ Project này dùng MCP như một lớp tool execution riêng biệt.
 
 #### MCP Server
 
-[`src/mcp/server/mcpServer.ts`](ai_chat_app/agentic_app_backend/src/mcp/server/mcpServer.ts) đăng ký các tool:
+[`src/mcp/server/mcpServer.ts`](agentic_app_backend/src/mcp/server/mcpServer.ts) đăng ký các tool:
 
 - `getCustomers`
 - `getCustomerById`
@@ -136,7 +136,7 @@ Project này dùng MCP như một lớp tool execution riêng biệt.
 
 #### MCP Client
 
-[`src/mcp/client/mcp-client.service.ts`](ai_chat_app/agentic_app_backend/src/mcp/client/mcp-client.service.ts) kết nối từ backend về chính MCP server nội bộ qua `StreamableHTTPClientTransport`.
+[`src/mcp/client/mcp-client.service.ts`](agentic_app_backend/src/mcp/client/mcp-client.service.ts) kết nối từ backend về chính MCP server nội bộ qua `StreamableHTTPClientTransport`.
 
 Điều này giúp chatbot có một lớp tool-call rõ ràng, tách biệt với controller/service truyền thống.
 
@@ -144,9 +144,9 @@ Project này dùng MCP như một lớp tool execution riêng biệt.
 
 RAG được triển khai qua:
 
-- [`src/rag/ragEngine.ts`](ai_chat_app/agentic_app_backend/src/rag/ragEngine.ts)
-- [`src/rag/ingest.ts`](ai_chat_app/agentic_app_backend/src/rag/ingest.ts)
-- [`src/rag/vectorStore/vector.store.ts`](ai_chat_app/agentic_app_backend/src/rag/vectorStore/vector.store.ts)
+- [`src/rag/ragEngine.ts`](agentic_app_backend/src/rag/ragEngine.ts)
+- [`src/rag/ingest.ts`](agentic_app_backend/src/rag/ingest.ts)
+- [`src/rag/vectorStore/vector.store.ts`](agentic_app_backend/src/rag/vectorStore/vector.store.ts)
 
 Luồng RAG:
 
@@ -166,8 +166,8 @@ Project hỗ trợ 2 backend vector DB:
 
 Code tương ứng:
 
-- [`src/rag/vectorStore/dbs/chroma.db.ts`](ai_chat_app/agentic_app_backend/src/rag/vectorStore/dbs/chroma.db.ts)
-- [`src/rag/vectorStore/dbs/pgvector.db.ts`](ai_chat_app/agentic_app_backend/src/rag/vectorStore/dbs/pgvector.db.ts)
+- [`src/rag/vectorStore/dbs/chroma.db.ts`](agentic_app_backend/src/rag/vectorStore/dbs/chroma.db.ts)
+- [`src/rag/vectorStore/dbs/pgvector.db.ts`](agentic_app_backend/src/rag/vectorStore/dbs/pgvector.db.ts)
 
 Việc này giúp thay đổi vector backend mà không cần sửa logic RAG ở tầng trên.
 

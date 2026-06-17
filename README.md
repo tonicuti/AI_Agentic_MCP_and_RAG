@@ -74,6 +74,29 @@ GeminiService
                        ChromaDB                              pgvector
 ```
 
+### Giải thích chức năng từng module trong sơ đồ
+
+| Module | Chức năng |
+| --- | --- |
+| `Client UI` | Giao diện người dùng của chatbot. Module này gửi câu hỏi của user tới backend thông qua API và hiển thị câu trả lời nhận được. |
+| `Express API` | Lớp HTTP entrypoint của backend. Express nhận request từ frontend, parse JSON, xử lý CORS và mount các route như `/api/chat`, `/api/weather`, `/api/orders`, `/api/customers`, `/mcp`. |
+| `AgentController` | Controller chính cho luồng chat agentic tại `/api/chat`. Module này nhận message từ client, chuẩn bị MCP client và gọi `GeminiService.generateResponseWithTools(...)` để model có thể quyết định dùng tool khi cần. |
+| `GeminiService` | Lớp điều phối với Gemini. Service này gọi Gemini để sinh câu trả lời, cung cấp danh sách MCP tools cho model, xử lý vòng gọi tool nếu Gemini trả về `functionCalls`, và tạo embedding cho RAG. |
+| `Gemini Model` | Mô hình LLM chính. Gemini đọc prompt, quyết định trả lời trực tiếp hoặc yêu cầu gọi tool, sau đó dùng kết quả tool để sinh câu trả lời cuối cùng cho user. |
+| `MCP Client` | Client nội bộ kết nối backend tới MCP server qua `StreamableHTTPClientTransport`. Khi Gemini yêu cầu gọi tool, `GeminiService` dùng MCP client để thực thi tool tương ứng. |
+| `MCP Server (/mcp)` | Server tool nội bộ được mount tại route `/mcp`. Module này đăng ký và expose các tool nghiệp vụ như customer, order, weather và RAG theo chuẩn Model Context Protocol. |
+| `Customer Tools` | Nhóm tool truy vấn dữ liệu khách hàng từ mock data hoặc service tương ứng. Ví dụ: lấy toàn bộ khách hàng hoặc tìm khách hàng theo ID. |
+| `Order Tools` | Nhóm tool truy vấn dữ liệu đơn hàng. Tool có thể lấy danh sách đơn hàng, tìm đơn theo ID hoặc kết hợp đơn hàng với thông tin khách hàng. |
+| `Weather Tool` | Tool lấy thông tin thời tiết. Tool này gọi `WeatherService`, sau đó service có thể gọi API thời tiết bên ngoài để lấy dữ liệu thực tế. |
+| `Weather API` | Nguồn dữ liệu thời tiết bên ngoài hoặc endpoint thời tiết được service sử dụng. Đây là dependency ngoài hệ thống chatbot chính. |
+| `RAG Tool` | Tool `ragSearch` cho phép Gemini tìm thông tin trong knowledge base. Tool nhận query từ model, gọi `RagEngine`, rồi trả về prompt có ngữ cảnh và danh sách nguồn liên quan. |
+| `RagEngine` | Lớp xử lý retrieval augmented generation. Module này tạo embedding cho câu hỏi, tìm các chunk gần nhất trong vector database, build context prompt và trả lại cho RAG tool. |
+| `Vector Store Abstraction` | Lớp chọn backend vector database dựa trên biến môi trường `VECTOR_DB`. Nhờ abstraction này, logic RAG không phụ thuộc trực tiếp vào ChromaDB hay pgvector. |
+| `ChromaDB` | Vector database mặc định dùng để lưu embedding của knowledge base và tìm kiếm semantic theo vector. Phù hợp cho demo/local development. |
+| `pgvector` | Backend vector database thay thế chạy trên PostgreSQL với extension `vector`. Phù hợp hơn khi muốn dùng PostgreSQL làm nơi lưu trữ lâu dài. |
+
+Tóm lại, `Client UI -> Express API -> AgentController -> GeminiService` là luồng chat chính. Khi cần dữ liệu ngoài khả năng trả lời trực tiếp của LLM, Gemini đi qua `MCP Client -> MCP Server` để gọi tool. Riêng các câu hỏi cần knowledge base sẽ đi qua `RAG Tool -> RagEngine -> Vector Store -> ChromaDB/pgvector` để lấy ngữ cảnh trước khi Gemini tạo câu trả lời cuối cùng.
+
 ## Thành phần chính
 
 ### 1. API Layer

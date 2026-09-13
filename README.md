@@ -1,6 +1,6 @@
 # Agentic Chatbot Backend
 
-Backend cho một chatbot kiểu agentic, sử dụng `Gemini` làm mô hình chính, `MCP (Model Context Protocol)` để gọi tool nội bộ, và `RAG` để trả lời các câu hỏi dựa trên knowledge base.
+Backend cho một chatbot kiểu agentic, sử dụng `Qwen/Qwen3-0.6B` làm mô hình chính, `sentence-transformers/all-MiniLM-L6-v2` cho embeddings, `MCP (Model Context Protocol)` để gọi tool nội bộ, và `RAG` để trả lời các câu hỏi dựa trên knowledge base.
 
 Project này được xây dựng để minh họa một kiến trúc chatbot không chỉ sinh văn bản, mà còn có thể:
 
@@ -238,10 +238,10 @@ Mở terminal tại `agentic_app_backend`:
 #### ChromaDB
 
 ```bash
-python -m venv agentic
-agentic\Scripts\activate
+python -m venv venv
+venv\Scripts\activate
 pip install chromadb
-chroma run --path src/vector-data
+chroma run --path vector-data --host localhost --port 8000
 ```
 
 #### pgvector bằng Docker

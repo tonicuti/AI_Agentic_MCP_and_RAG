@@ -1,4 +1,4 @@
-import { GEMINI } from "../services/gemini.service.ts";
+import { QWEN } from "../services/llm-emb.service.ts";
 import { VectorStore } from "./vectorStore/vector.store.ts";
 
 interface RagChunk {
@@ -17,7 +17,7 @@ export class RagEngine {
             console.log("RAG: Vector store initialized.");
             console.log("RAG: Generating embedding for query...");
 
-            const [queryEmbedding] = await GEMINI.generateEmbeddings([query], "RETRIEVAL_QUERY");
+            const [queryEmbedding] = await QWEN.generateEmbeddings([query]);
 
             if(!queryEmbedding) {
                 throw new Error("Failed to generate embedding for the query.");

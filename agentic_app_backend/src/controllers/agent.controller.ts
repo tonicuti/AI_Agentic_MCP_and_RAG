@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { GEMINI } from "../services/gemini.service.ts";
+import { QWEN } from "../services/llm-emb.service.ts";
 import { MCPClient } from "../mcp/client/mcp-client.service.ts";
 
 export class AgentController {
@@ -9,11 +9,11 @@ export class AgentController {
             return res.status(400).json({ error: "Message is required" });
         }
 
-        const selectedModel = model || "gemini";
+        const selectedModel = model || "qwen";
         try {
-            if (selectedModel === "gemini") {
+            if (selectedModel === "qwen") {
                 const mcp = await MCPClient.init();
-                const response = await GEMINI.generateResponseWithTools(message, mcp.client);
+                const response = await QWEN.generateResponseWithTools(message, mcp.client);
                 res.json({ reply: response });
             }
         }

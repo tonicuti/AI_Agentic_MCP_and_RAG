@@ -6,15 +6,16 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "tsx watch --env-file .env src/index.ts",
     "start": "tsx --env-file .env src/index.ts",
-    "rag:ingest": "npx tsx --env-file=.env src/rag/ingest.ts src/data/rag_docs"
+    "rag:ingest": "npx tsx --env-file=.env src/rag/ingest.ts --dataset",
+    "rag:ingest:folder": "npx tsx --env-file=.env src/rag/ingest.ts src/data/rag_docs",
+    "rag:benchmark": "npx tsx --env-file=.env src/benchmark/rag.benchmark.ts"
   },
   "author": "",
   "license": "ISC",
   "description": "",
   "type": "module",
   "dependencies": {
-    "@chroma-core/default-embed": "^0.1.9",
-    "@google/genai": "^1.45.0",
+    "@huggingface/transformers": "^3.7.2",
     "@modelcontextprotocol/sdk": "^1.27.1",
     "chromadb": "^3.4.0",
     "cors": "^2.8.6",

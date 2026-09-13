@@ -34,6 +34,10 @@ export class VectorStorePg {
         console.log('pgvector: Skipping all indexes (3072 dims exceed index limits).');
     }
 
+    static async reset() {
+        await pool.query(`TRUNCATE TABLE ${this.table}`);
+    }
+
     static async upsert(params: {
         id: string;
         docId: string;

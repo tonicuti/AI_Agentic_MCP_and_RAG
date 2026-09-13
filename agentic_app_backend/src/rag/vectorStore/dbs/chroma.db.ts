@@ -13,10 +13,25 @@ export class VectorStoreChroma {
     private static collection: any;
 
     static async init() {
-        this.collection = await chroma.getOrCreateCollection({
-            name: COLLECTION
-        });
+        try {
+            this.collection = await chroma.getOrCreateCollection({
+                name: COLLECTION
+            });
+        } catch (error) {
+            const host = process.env.CHROMA_HOST || "localhost";
+            const port = process.env.CHROMA_PORT || "8000";
+            throw new Error(
+                `Unable to connect to ChromaDB at ${host}:${port}. ` +
+                `Start Chroma with: chroma run --path vector-data --host ${host} --port ${port}`,
+                { cause: error }
+            );
+        }
         console.log(`Connected ChromaDB Collection: ${COLLECTION}`);
+    }
+
+    static async reset() {
+        await chroma.deleteCollection({ name: COLLECTION });
+        this.collection = undefined;
     }
 
     static async upsert(params: {       // If documents existed: update, and do not exist: insert

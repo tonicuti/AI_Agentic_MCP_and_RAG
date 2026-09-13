@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from "express";
-import { GEMINI } from "../services/gemini.service.ts";
+import { QWEN } from "../services/llm-emb.service.ts";
 
 export class chatController {
     static async generateResponse(req: Request, res: Response, next: NextFunction) {
@@ -9,7 +9,7 @@ export class chatController {
         }
 
         try {
-            const response = await GEMINI.generateResponse(message);
+            const response = await QWEN.generateResponse(message);
             res.json({ reply: response });
         }
         catch (error: any) {

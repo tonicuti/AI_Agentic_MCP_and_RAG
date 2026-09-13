@@ -1,8 +1,9 @@
 import { VectorStore } from "./vectorStore/vector.store.ts";
 import fs from "node:fs";
 import path from "node:path";
-import { GEMINI } from "../services/gemini.service.ts";
+import { QWEN } from "../services/llm-emb.service.ts";
 import { randomUUID } from "node:crypto";
+import { loadRagDataset } from "./dataset.ts";
 
 
 const CHUNK_SIZE = Number(process.env.RAG_CHUNK_SIZE || 800);
@@ -40,7 +41,7 @@ export async function ingestFolder(folderPath: string) {
         for (let i = 0; i < chunks.length; i++) {
             const currentChunk = chunks[i];
 
-            const embResult = await GEMINI.generateEmbeddings(currentChunk);
+            const embResult = await QWEN.generateEmbeddings(currentChunk);
             const embeddingVector = embResult[0];
 
             await Store?.upsert({
@@ -59,13 +60,52 @@ export async function ingestFolder(folderPath: string) {
     }
 }
 
+export async function ingestDataset(split = process.env.HF_DATASET_TRAIN_SPLIT || "train") {
+    const Store = VectorStore.get();
+    if (process.env.RAG_RESET_COLLECTION !== "false") {
+        await Store.reset();
+    }
+    await Store.init();
+
+    const rows = await loadRagDataset(split);
+
+    for (let rowIndex = 0; rowIndex < rows.length; rowIndex++) {
+        const row = rows[rowIndex];
+        const chunks = chunkText(row.context);
+
+        for (let chunkIndex = 0; chunkIndex < chunks.length; chunkIndex++) {
+            const text = chunks[chunkIndex];
+            const [embedding] = await QWEN.generateEmbeddings(text);
+
+            await Store.upsert({
+                id: `hf-${split}-${rowIndex}-${chunkIndex}`,
+                docId: `hf-${split}-${rowIndex}`,
+                chunkIndex,
+                text,
+                embedding,
+                metadata: {
+                    source: process.env.HF_DATASET || "neural-bridge/rag-dataset-1200",
+                    split,
+                    rowIndex,
+                },
+            });
+        }
+    }
+
+    console.log(`Ingested ${rows.length} Hugging Face dataset rows from split: ${split}`);
+}
+
 if (import.meta.url.includes('ingest')) {
     const folder = process.argv[2];
 
     if (!folder) {
-        console.log('usage: node src/rag/ingest.ts src/data/rag_docs');
+        console.log('usage: node src/rag/ingest.ts --dataset [split]');
         process.exit(1);
     }
 
-    ingestFolder(folder);
+    if (folder === "--dataset") {
+        ingestDataset(process.argv[3]);
+    } else {
+        ingestFolder(folder);
+    }
 }
